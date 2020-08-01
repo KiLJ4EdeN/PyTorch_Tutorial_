@@ -67,7 +67,7 @@ def prepare_data(path):
   test_dl = torch.utils.data.DataLoader(test, batch_size=1024, shuffle=False)
   return train_dl, test_dl
 
-def train_model(train_dl, model):
+def train_model(train_dl, model, verbose=True):
   # optimizaiton
   criterion = torch.nn.BCELoss()
   optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
@@ -84,6 +84,10 @@ def train_model(train_dl, model):
       loss.backward()
       # update.
       optimizer.step()
+    if verbose:
+      train_acc = evaluate_model(train_dl, model)
+      test_acc = evaluate_model(test_dl, model)
+      print(f'epoch: {epoch}, loss, {loss/100}, acc:{train_acc}, val_acc:{test_acc}')
 
 
 def evaluate_model(test_dl, model):
@@ -119,10 +123,10 @@ print(len(train_dl.dataset), len(test_dl.dataset))
 # define the network
 model = MLP(34)
 # train the model
-train_model(train_dl, model)
+train_model(train_dl, model, verbose=False)
 # evaluate the model
 acc = evaluate_model(test_dl, model)
-print('Accuracy: %.3f' % acc)
+print('Final Accuracy: %.3f' % acc)
 # make a single prediction (expect class=1)
 row = [1,0,0.99539,-0.05889,0.85243,0.02306,0.83398,
        -0.37708,1,0.03760,0.85243,-0.17755,0.59755,-0.44945,
